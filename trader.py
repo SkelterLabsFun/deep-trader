@@ -13,9 +13,10 @@ flags.DEFINE_integer('frequency', 60 * 60 * 24, 'Iterating frequency (in sec)')
 
 
 def _handler(trade_algorithm: algorithm.Algorithm,
+             context: algorithm.Context,
              trader: trading_manager.TradingManager,
              features: feature_manager.FeatureManager):
-    trading_target = trade_algorithm.run(features)
+    trading_target = trade_algorithm.run(context, features)
     for trading in trading_target:
         if trading.action == 'buy':
             trader.buy(trading)
@@ -26,6 +27,7 @@ def _handler(trade_algorithm: algorithm.Algorithm,
 def main(args):
     del args  # Unused
 
+    context = algorithm.Context()
     trade_algorithm = algorithm.Algorithm()
 
     trader = trading_manager.TradingManager()
@@ -34,7 +36,7 @@ def main(args):
     # TODO(jseo): Seperate scheduler as class to manage frequency
     scheduler = sched.scheduler(time.time, time.sleep)
     scheduler.enter(FLAGS.frequency, 1, _handler,
-                    (trade_algorithm, trader, features))
+                    (trade_algorithm, context, trader, features))
     scheduler.run(blocking=True)
 
 
