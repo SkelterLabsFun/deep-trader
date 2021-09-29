@@ -4,14 +4,6 @@ And save as TFRecord dataset.
 
 @see https://github.com/FinanceData/FinanceDataReader
 
-NOTE: This is not build by bazel. Only running locally is tested and
-you need to install requirements manually.
-
-Requirements
-
-* `pip install beautifulsoup4`  # Unmentioned requirement
-* `pip install finance-datareader`
-
 Example usage:
 
     python download_finance_data.py --outfile ~/tmp/finance_data.tfrecord
@@ -59,7 +51,7 @@ def _float_values(series):
     return series.values.astype(np.float32)
 
 
-def _build_example(ohlcvc):
+def _build_example(code, ohlcvc):
     """Return an ohlcvc example.
 
     An example consists of Open, High, Low, Close, Volume, Change and
@@ -68,13 +60,14 @@ def _build_example(ohlcvc):
 
     For an example;
 
-    Open | High | Low | Close | Volume | Change | Date
-    -----|------|-----|-------|--------|--------|------
-    10   | 12   | 9   | 10    | 100    | 0      | YYYY-mm-dd
+    Code |Open |High |Low |Close |Volume |Change |Date
+    -----|-----|-----|----|------|-------|-------|------
+    Code |10   |12   |9   |10    |100    |0      |YYYY-mm-dd
     ...
-    15   | 18   | 12  | 17    | 220    | 0.0209 | YYYY-mm-dd + ndays
+    Code |15   |18   |12  |17    |220    |0.0209 |YYYY-mm-dd + ndays
     """
     feature = {
+        'code': _bytes_feature([code]),
         'date': _bytes_feature(_strftime_values(ohlcvc.index)),
         'open': _float_feature(_float_values(ohlcvc['Open'])),
         'high': _float_feature(_float_values(ohlcvc['High'])),
@@ -102,7 +95,7 @@ def _download_krx(writer):
         # Open, High, Low, Close, Volume, Change
         ohlcvc = fdr.DataReader(symbol)
         try:
-            example = _build_example(ohlcvc)
+            example = _build_example(symbol, ohlcvc)
             writer.write(example.SerializeToString())
             count += 1
             if count % 100 == 0:
