@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package deeptrader;
+
+message GetCandleRequest{
+  string code = 1; // 종목코드
+  string cycle_type = 2; // 차트 구분 'D'-일, 'W'-주, 'M'-월, 'm'-분, 'T'-틱
+  int32 cycle = 3; // 사이클 단위 (ex: 5분봉이면 5, 1주봉이면 1)
+  int32 count = 4; // 조회할 캔들 개수
+}
+
+message CandleData{
+  int32 date = 1;
+  int32 time = 2;
+  int32 open = 3;
+  int32 high = 4;
+  int32 low = 5;
+  int32 close = 6;
+  int32 volume = 7;
+}
+
+message GetCandleResponse{
+  string name = 1;
+  repeated CandleData candle_data = 2;
+}
+
+message SubmitOrderRequest{
+  string code = 1;
+  string order_type = 2; // 'L'-매수, 'S'-매도
+  int32 count = 3; // 주문 수량
+  int32 price = 4; // 주문 단가, 0이면 시장가
+}
+
+message SubmitOrderResponse{
+}
+  
+service DeepTrader {
+  rpc GetCandle(GetCandleRequest) returns (GetCandleResponse);
+  rpc SubmitOrder(SubmitOrderRequest) returns (SubmitOrderResponse);
+}
