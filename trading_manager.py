@@ -8,6 +8,7 @@ from typing import List, Optional
 from absl import logging
 
 import algorithm
+import feature_manager
 
 
 class SecuritiesManager:
@@ -54,11 +55,16 @@ class BackTestTradingManager(TradingManager):
     # NOTE(inyoup): Implement real stock purchase mechanism. In demo days,
     #   we suppose all attempts to buy stock will success.
 
-    def __init__(self):
+    LOGGING = False
+
+    def __init__(self, feature_manager):
         self._context = None
         self._stock_data = None
+        self._feature_manager = feature_manager
 
-    def set_user_and_stock_data(self, context: algorithm.Context, stock_data):
+    def set_user_and_stock_data(self,
+                                context: algorithm.Context,
+                                stock_data):
         # TODO(inyoup): Implement to fecth market data from SecuritiesManager
         #   after implemented.
         self._context = context
@@ -67,14 +73,23 @@ class BackTestTradingManager(TradingManager):
     def get_market_time(self):
         return self._context.market_time
 
+    def get_stock_close_price(self, code):
+        market_time = self._context.market_time
+        return self._feature_manager.get_feature_at(code, 'Close', market_time)
+
     def buy(self, trading: algorithm.Trading) -> Optional[algorithm.Stock]:
         self.log(f'Call buy API for {trading}')
-        return algorithm.Stock(
-            code=trading.code,
-            bought_price=trading.target_price,
-            amount=trading.amount,
-            bought_at=self.get_market_time(),
-        )  # always succeed to buy
+        close_price = self.get_stock_close_price(trading.code)
+        if close_price is None:
+            return
+
+        # TODO(inyoup): In buying and selling, use target_price and bound_price
+        #   to trade stocks.
+        return algorithm.Stock(code=trading.code,
+                               bought_price=close_price,
+                               amount=trading.amount,
+                               bought_at=self.get_market_time(),
+                              ) # always succeed to buy
 
     def sell(self, trading: algorithm.Trading) -> List[Transaction]:
         self.log(f'Call sell API for {trading}')
@@ -82,6 +97,9 @@ class BackTestTradingManager(TradingManager):
 
     def _selling_to_transaction(self, trading):
         transactions = []
+        close_price = self.get_stock_close_price(trading.code)
+        if close_price is None:
+            return []
 
         selling_amount = trading.amount
         for owned_stock in self._context.basket:
@@ -95,27 +113,27 @@ class BackTestTradingManager(TradingManager):
                 selling_amount_for_owned_stock = selling_amount
                 selling_amount = 0
 
-            transaction = Transaction(
-                code=owned_stock.code,
-                bought_price=owned_stock.bought_price,
-                sold_price=trading.target_price,
-                amount=selling_amount_for_owned_stock,
-                bought_at=owned_stock.bought_at,
-                sold_at=self.get_market_time())
+            transaction = Transaction(code=owned_stock.code,
+                                      bought_price=owned_stock.bought_price,
+                                      sold_price=close_price,
+                                      amount=selling_amount_for_owned_stock,
+                                      bought_at=owned_stock.bought_at,
+                                      sold_at=self.get_market_time())
             transactions.append(transaction)
             if selling_amount == 0:
                 break
         return transactions
 
     def log(self, log_str):
-        pass
-        # print(f'[BackTestTradingManager] {log_str}')
+        if not self.LOGGING:
+            return
+        print(f'[BackTestTradingManager] {log_str}')
 
 
-def get_trading_manager(trading_manager_type: str) -> TradingManager:
+def get_trading_manager(trading_manager_type: str, kwargs) -> TradingManager:
     if trading_manager_type == 'daishin':
         return DaishinTradingManager()
     if trading_manager_type == 'back_test':
-        return BackTestTradingManager()
+        return BackTestTradingManager(**kwargs)
     raise NotImplementedError(
         f'Unsupported TradingManagerType: {trading_manager_type}')

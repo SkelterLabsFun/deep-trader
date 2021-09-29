@@ -81,11 +81,8 @@ class DummyAlgorithm(Algorithm):
     def run(self, context, features) -> List[Trading]:
         self.cnt += 1
         to_buy = self.cnt % 2 == 1
-        return [
-            Trading(
-                code="SKELTER_LABS",
-                target_price=5000 + self.cnt,
-                bound_price=5100 + self.cnt,
-                amount=10,
-                action='buy' if to_buy else 'sell')
-        ]
+        return [Trading(code="005930",
+                       target_price=5000 + self.cnt,
+                       bound_price=5100 + self.cnt,
+                       amount=1000,
+                       action='buy' if to_buy else 'sell')]
