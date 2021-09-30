@@ -4,3 +4,4 @@ bs4==0.0.1
 finance-datareader==0.9.31
 matplotlib==3.4.3
 pykrx
+grpcio==1.41.0
