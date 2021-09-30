@@ -2,7 +2,9 @@
 import abc
 from typing import Optional
 
+from pykrx import stock
 import FinanceDataReader as fdr
+import numpy as np
 import pandas as pd
 
 
@@ -95,3 +97,93 @@ class FinanceDataReaderManager(FeatureManager):
         index_list = candle_df.index.to_pydatetime()
         index_filter = ((index_list >= start) & (index_list <= end))
         return candle_df.loc[index_filter]
+
+
+class AnnualFundamentalDataManager(FeatureManager):
+    FUNDAMENTAL_FEATURES = [
+        'corp_name', 'year', 'total_equity', 'sales', 'profit', 'net_income',
+        'bps', 'per', 'eps', 'debt_ratio', 'profit_ratio'
+    ]
+
+    def __init__(self,
+                 market : str,
+                 filepath: str):
+        super().__init__(market)
+        self._fundamental_df = pd.read_csv(
+            filepath,
+            sep='\t',
+            index_col='year',
+            dtype={
+                'code': str,
+                'corp_name': str,
+                'total_equity': np.float32,
+                'sales': np.float32,
+                'profit': np.float32,
+                'net_income': np.float32,
+                'bps': np.float32,
+                'per': np.float32,
+                'eps': np.float32,
+                'debt_ratio': np.float32,
+                'profit_ratio': np.float32,
+            })
+
+    def _get_year(self, dt):
+        return pd.to_datetime(dt).year
+
+    def get_feature(self,
+                    code: str,
+                    feature_name: str,
+                    start: Optional[str] = None,
+                    end: Optional[str] = None):
+        """Get feature value"""
+        if feature_name not in self.FUNDAMENTAL_FEATURES:
+            raise ValueError(f'Invalid feature request: {feature_name}')
+        start = self._get_year(start)
+        end = self._get_year(end)
+        return self.get_fundamental_data(code, start, end)[feature_name]
+
+    def get_fundamental_data(self,
+                             code: str,
+                             start: Optional[int] = None,
+                             end: Optional[int] = None) -> pd.DataFrame:
+        """Get annual fundamental data"""
+        df = self._fundamental_df[self._fundamental_df['code'] == code]
+        if start:
+            df = df[df.index >= start]
+        if end:
+            df = df[df.index <= end]
+        return df
+
+
+class FundamentalDataManager(FeatureManager):
+    FUNDAMENTAL_FEATURES = ['BPS', 'PER', 'PBR', 'EPS', 'DIV', 'DPS']
+
+    def _convert_datetime_str(self, dt):
+        return pd.to_datetime(dt).strftime('%Y%m%d')
+
+    def get_feature(self,
+                    code: str,
+                    feature_name: str,
+                    start: str,
+                    end: str):
+        """Get feature value"""
+        if feature_name not in self.FUNDAMENTAL_FEATURES:
+            raise ValueError(f'Invalid feature request: {feature_name}')
+        start = self._convert_datetime_str(start)
+        end = self._convert_datetime_str(end)
+        return self.get_fundamental_data(code, start, end)[feature_name]
+
+    def get_fundamental_data(self,
+                             code: str,
+                             start: str,
+                             end: str,
+                             freq: Optional[str] = 'd') -> pd.DataFrame:
+        """Get fundamental data
+
+        Args:
+            code: stock code
+            start: date time string
+            end: date time string
+            freq: d - 일 / m - 월 / y - 년
+        """
+        return stock.get_market_fundamental_by_date(start, end, code, freq)
