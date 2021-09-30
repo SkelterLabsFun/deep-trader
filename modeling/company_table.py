@@ -1,10 +1,8 @@
 """Company fundamental table.
 
-The table lookup by company code and year to result a row consisting
-of:
+The tables are looked up with company code and year joined by '@'
+to result one of following value corresponding lookup key.
 
-- code
-- year
 - corp_name
 - total_equity
 - sales
@@ -16,8 +14,8 @@ of:
 - debt_ratio
 - profit_ratio
 
-NOTE: The table should be updated once a year at least. Check and warn
-if it seems not?
+NOTE: The tables should be updated once a year at least. Check and
+warn if it seems not?
 """
 
 import numpy as np
