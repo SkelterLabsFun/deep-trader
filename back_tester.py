@@ -21,10 +21,10 @@ flags.DEFINE_integer('frequency', 60 * 60 * 24, 'Iterating frequency (in sec)')
 
 ENV = 'back_test'
 
+
 def algorithm_handler(trade_algorithm: algorithm.Algorithm,
-             context: algorithm.Context,
-             trader: trading_manager.TradingManager,
-             feature_manager):
+                      context: algorithm.Context,
+                      trader: trading_manager.TradingManager, feature_manager):
     transaction_history = []
     trading_target = trade_algorithm.run(context, feature_manager)
     # print(trading_target)
@@ -32,13 +32,15 @@ def algorithm_handler(trade_algorithm: algorithm.Algorithm,
         if trading.action == 'buy':
             trading_buy_handler(context, trader, trading)
         else:
-            transaction_history += trading_sell_handler(
-                context, trader, trading)
+            transaction_history += trading_sell_handler(context, trader,
+                                                        trading)
     return transaction_history
+
 
 def trading_buy_handler(context, trader, trading):
     stock = trader.buy(trading)
     context.buy_stocks([stock])
+
 
 def trading_sell_handler(context, trader, trading):
     transactions = trader.sell(trading)
@@ -69,10 +71,12 @@ def trading_sell_handler(context, trader, trading):
     context.update_budget(context.budget + returned_budget)
     context.update_basket(remained_stocks)
 
-    return transactions # to save all transactions in simulator
+    return transactions  # to save all transactions in simulator
+
 
 def _parse_datetime(date_str):
     return datetime.datetime.strptime(date_str, '%Y-%m-%d')
+
 
 def _date_range_enumerator(start_date, end_date, tick):
     ticks = []
@@ -81,20 +85,21 @@ def _date_range_enumerator(start_date, end_date, tick):
         start_date += tick
     return ticks[:100]
 
+
 def simulate(start_date, end_date, frequency, trade_algorithm, context, trader,
              feature_manager):
     start_date = _parse_datetime(start_date)
     end_date = _parse_datetime(end_date)
     tick = datetime.timedelta(seconds=frequency)
     print(f'Simulation date range: {start_date} ~ {end_date}')
-    
+
     now = start_date
     transaction_history = []
     for now in tqdm.tqdm(_date_range_enumerator(start_date, end_date, tick)):
         context.update_market_time(now)
         trader.set_user_and_stock_data(context, None)
-        transaction_history += algorithm_handler(
-            trade_algorithm, context, trader, feature_manager)
+        transaction_history += algorithm_handler(trade_algorithm, context,
+                                                 trader, feature_manager)
         # print(context)
     print(transaction_history)
 
@@ -106,7 +111,7 @@ def main(args):
     trade_algorithm = algorithm.DummyAlgorithm()
 
     trader = trading_manager.get_trading_manager('back_test')
-    feature_manager = None # feature_manager.FeatureManager()
+    feature_manager = None  # feature_manager.FeatureManager()
 
     simulate(FLAGS.start_date, FLAGS.end_date, FLAGS.frequency, trade_algorithm,
              context, trader, feature_manager)
