@@ -30,9 +30,9 @@ class Stock:
 class Context:
     """Context to represent current status."""
 
-    def __init__(self, budget=0, basket=[], market_time=None):
+    def __init__(self, budget=0, basket=None, market_time=None):
         self.budget = budget
-        self.basket = basket
+        self.basket = basket if basket else {}
         self.market_time = market_time
 
     def __str__(self):
@@ -45,7 +45,7 @@ class Context:
     def update_budget(self, budget):
         self.budget = budget
 
-    def update_basket(self, basket):
+    def update_basket(self, basket: dict):
         self.basket = copy.deepcopy(basket)
 
     def update_market_time(self, market_time):
@@ -55,8 +55,8 @@ class Context:
         total_price = 0
         for stock in stocks:
             total_price += stock.bought_price * stock.amount
+            self.basket[stock.code] = stock
         self.budget -= total_price
-        self.basket.extend(stocks)
 
 
 # TODO(jseo): Consider to change as protobuf

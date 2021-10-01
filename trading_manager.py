@@ -102,7 +102,7 @@ class BackTestTradingManager(TradingManager):
             return []
 
         selling_amount = trading.amount
-        for owned_stock in self._context.basket:
+        for owned_stock in self._context.basket.values():
             if owned_stock.code != trading.code:
                 continue
 
