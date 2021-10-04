@@ -137,7 +137,7 @@ def check_delisting(context: algorithm.Context):
 def algorithm_handler(trade_algorithm: algorithm.Algorithm,
                       context: algorithm.Context,
                       trader: trading_manager.TradingManager, feature_manager):
-    context = check_delisting(context)
+    #context = check_delisting(context)
     transaction_history = []
     trading_target = trade_algorithm.run(context, feature_manager)
     logging.debug(f'[{context.market_time.strftime("%Y-%m-%d")}] '
@@ -230,8 +230,8 @@ def simulate(start_date, end_date, trade_algorithm, budget):
 def main(args):
     del args  # Unused
 
-    #trade_algorithm = algorithm.DummyAlgorithm()
-    trade_algorithm = multi_factor_market_timing.MultiFactorMarketTiming()
+    trade_algorithm = algorithm.DummyAlgorithm()
+    #trade_algorithm = multi_factor_market_timing.MultiFactorMarketTiming()
     simulate(FLAGS.start_date, FLAGS.end_date, trade_algorithm, FLAGS.budget)
 
 
