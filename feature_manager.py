@@ -187,3 +187,18 @@ class FundamentalDataManager(FeatureManager):
             freq: d - 일 / m - 월 / y - 년
         """
         return stock.get_market_fundamental_by_date(start, end, code, freq)
+
+    def get_candle_data_from_csv(self,
+                                 path: str,
+                                 rows: int) :
+        """Get candle data from csv
+
+        csv file google drive link : https://drive.google.com/file/d/1Y4SFQ9i-5M3NH5Y7RnWfFUPmKTtZEmmd/view?usp=sharing
+        Args:
+            path: local path
+            rows: number of rows to get
+        """
+        return pd.read_csv(path,
+                        names = ['Code', 'Date', 'Time', 'Open', 'High', 'Low', 'Close', 'Volume'],
+                        nrows = rows)
+
