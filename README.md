@@ -13,3 +13,11 @@ $ pyenv virtualenv 3.7.9 deeptraders
 $ pyenv activate deeptraders
 $ pip install -r requirements.txt
 ```
+## Datasets
+
+Gathered datasets are stored in the below paths:
+
+* Company data: `/nas0/home/jaesup.kwak/deep_traders/financial_data.txt`
+* Trading data
+    * Daily: `/nas0/home/jaesup.kwak/deep_traders/finance_data/2021-09-29/finance_data.tfrecord`
+    * Minutes: `https://drive.google.com/file/d/1Y4SFQ9i-5M3NH5Y7RnWfFUPmKTtZEmmd/view?usp=sharing`
