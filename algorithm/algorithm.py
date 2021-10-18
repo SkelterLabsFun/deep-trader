@@ -1,9 +1,12 @@
 """Algorithm class"""
 
+import abc
 import copy
 import dataclasses
 from datetime import date
 from typing import List
+
+import feature_manager
 
 
 @dataclasses.dataclass
@@ -66,12 +69,26 @@ class Algorithm:
     This determines which list of items buy/sell.
     """
 
-    def __init__(self):
-        pass
+    algorithms = {}
 
-    # TODO(jseo): Modify name
-    def run(self, context, features) -> List[Trading]:
-        return []
+    @abc.abstractmethod
+    def run(self, context: Context,
+            features: feature_manager.FeatureManager) -> List[Trading]:
+        """Calculate trading algorithm based on the given
+        context and features
+
+        Args:
+            context: Context information
+            features: Feature information
+
+        Returns:
+            list of trading items
+        """
+        raise NotImplementedError()
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.algorithms[cls.__name__] = cls
 
 
 class DummyAlgorithm(Algorithm):
@@ -81,8 +98,10 @@ class DummyAlgorithm(Algorithm):
     def run(self, context, features) -> List[Trading]:
         self.cnt += 1
         to_buy = self.cnt % 2 == 1
-        return [Trading(code="005930",
-                       target_price=5000 + self.cnt,
-                       bound_price=5100 + self.cnt,
-                       amount=1000,
-                       action='buy' if to_buy else 'sell')]
+        return [
+            Trading(code="005930",
+                    target_price=5000 + self.cnt,
+                    bound_price=5100 + self.cnt,
+                    amount=1000,
+                    action='buy' if to_buy else 'sell')
+        ]

@@ -21,3 +21,17 @@ Gathered datasets are stored in the below paths:
 * Trading data
     * Daily: `/nas0/home/jaesup.kwak/deep_traders/finance_data/2021-09-29/finance_data.tfrecord`
     * Minutes: `https://drive.google.com/file/d/1Y4SFQ9i-5M3NH5Y7RnWfFUPmKTtZEmmd/view?usp=sharing`
+
+## Usage
+
+### Back test
+
+To perform back test, execute the following command:
+```bash
+$ python back_tester.py```
+
+### Trading
+
+To perform algorithm trading, you should execute two binaries.
+1. trader
+2. cybos_wrapper

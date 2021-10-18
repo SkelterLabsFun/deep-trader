@@ -12,13 +12,12 @@ import numpy as np
 import pandas as pd
 from pykrx import stock as krx_stock
 
-import algorithm
+from algorithm import algorithm
 
 _Trading = algorithm.Trading
 
 
 class MultiFactorMarketTiming(algorithm.Algorithm):
-
     def __init__(self):
         self._stock_basket = None
         self._stock_num = 20  # 주식 종목 수
@@ -59,8 +58,8 @@ class MultiFactorMarketTiming(algorithm.Algorithm):
             codes = self._build_portfolio()
             logging.debug(f'build_portfolio: {codes}')
             from_date = self._context.market_time
-            close_prices = krx_stock.get_market_ohlcv_by_ticker(
-                from_date, market='ALL')
+            close_prices = krx_stock.get_market_ohlcv_by_ticker(from_date,
+                                                                market='ALL')
             close_prices = close_prices['종가']
             for code in codes:
                 to_date = from_date + datetime.timedelta(1)
@@ -84,29 +83,26 @@ class MultiFactorMarketTiming(algorithm.Algorithm):
                     diff_amount = amount - prev_stock.amount
                     if diff_amount > 0:
                         trading_list.append(
-                            _Trading(
-                                code=code,
-                                target_price=close_price,
-                                bound_price=close_price * 1.1,
-                                amount=diff_amount,
-                                action='buy'))
+                            _Trading(code=code,
+                                     target_price=close_price,
+                                     bound_price=close_price * 1.1,
+                                     amount=diff_amount,
+                                     action='buy'))
                     elif diff_amount < 0:
                         diff_amount *= -1
                         trading_list.append(
-                            _Trading(
-                                code=code,
-                                target_price=close_price,
-                                bound_price=close_price * 0.9,
-                                amount=diff_amount,
-                                action='sell'))
+                            _Trading(code=code,
+                                     target_price=close_price,
+                                     bound_price=close_price * 0.9,
+                                     amount=diff_amount,
+                                     action='sell'))
                 else:
                     trading_list.append(
-                        _Trading(
-                            code=code,
-                            target_price=close_price,
-                            bound_price=close_price * 1.1,
-                            amount=amount,
-                            action='buy'))
+                        _Trading(code=code,
+                                 target_price=close_price,
+                                 bound_price=close_price * 1.1,
+                                 amount=amount,
+                                 action='buy'))
         logging.debug(f'[{context.market_time}] {trading_list}')
         return trading_list
 
@@ -125,7 +121,10 @@ class MultiFactorMarketTiming(algorithm.Algorithm):
         universe = filter(self._china_stock_filter, universe)
         universe = list(universe)
         # '012710' seems closed
-        closed_companies = ['012710', '011260', '015545', '012095', '002535', '016167', '012405']
+        closed_companies = [
+            '012710', '011260', '015545', '012095', '002535', '016167',
+            '012405'
+        ]
         for closed in closed_companies:
             if closed in universe:
                 universe.remove(closed)
@@ -176,15 +175,15 @@ class MultiFactorMarketTiming(algorithm.Algorithm):
         closest_close = kosdaq['종가'][-1]
 
         tradings = []
-        if (closest_close < ma_3 and closest_close < ma_5 and
-                closest_close < ma_10):
+        if (closest_close < ma_3 and closest_close < ma_5
+                and closest_close < ma_10):
             self._stock_weight = 0
             logging.info(f'코스닥 하락장 발생!! 코스닥 종가: {closest_close} '
                          f'3일이평: {ma_3} 5일이평: {ma_5} 10일이평: {ma_10}')
             from_date = self._convert_date_to_pykrx_format(
                 self._context.market_time)
-            close_prices = krx_stock.get_market_ohlcv_by_ticker(
-                from_date, market='ALL')
+            close_prices = krx_stock.get_market_ohlcv_by_ticker(from_date,
+                                                                market='ALL')
             close_prices = close_prices['종가']
             for stock in self._context.basket.values():
                 # TODO(jseo): get_market_ohlcv_by_date occur some error
@@ -197,12 +196,11 @@ class MultiFactorMarketTiming(algorithm.Algorithm):
                     raise KeyError() from ex
 
                 tradings.append(
-                    algorithm.Trading(
-                        code=stock.code,
-                        target_price=close_price,
-                        bound_price=close_price * 0.9,
-                        amount=stock.amount,
-                        action='sell'))
+                    algorithm.Trading(code=stock.code,
+                                      target_price=close_price,
+                                      bound_price=close_price * 0.9,
+                                      amount=stock.amount,
+                                      action='sell'))
             self._draw_down_flag = True
         else:
             logging.info(f'코스닥 하락장 종료!!')

@@ -14,9 +14,9 @@ import tqdm
 
 import FinanceDataReader as fdr
 
-import algorithm
+from algorithm import algorithm
+from algorithm import multi_factor_market_timing
 import feature_manager as feature_manager_helper
-import multi_factor_market_timing
 import trading_manager
 
 matplotlib.use('macosx')
@@ -24,9 +24,10 @@ matplotlib.use('macosx')
 FLAGS = flags.FLAGS
 # FLAGS for back test.
 flags.DEFINE_string('start_date', '2001-01-03', 'Start date for back test.')
-#flags.DEFINE_string('start_date', '2001-01-02', 'Start date for back test.')
 flags.DEFINE_string('end_date', '2020-12-31', 'End date for back test.')
 flags.DEFINE_integer('budget', 10_000_000, 'Budget for back test.')
+flags.DEFINE_enum('algorithm', 'DummyAlgorithm',
+                  algorithm.Algorithm.algorithms.keys(), 'Algorithm')
 
 ENV = 'back_test'
 
@@ -146,8 +147,8 @@ def algorithm_handler(trade_algorithm: algorithm.Algorithm,
         if trading.action == 'buy':
             trading_buy_handler(context, trader, trading)
         else:
-            transaction_history += trading_sell_handler(context, trader,
-                                                        trading)
+            transaction_history += trading_sell_handler(
+                context, trader, trading)
     return transaction_history
 
 
@@ -208,8 +209,8 @@ def simulate(start_date, end_date, trade_algorithm, budget):
     context = algorithm.Context(budget=budget, basket=[])
     feature_manager = feature_manager_helper.FinanceDataReaderManager(
         'KRX', cache_start_date=start_date, cache_end_date=end_date)
-    metric_manager = MetricManager(
-        budget=budget, feature_manager=feature_manager)
+    metric_manager = MetricManager(budget=budget,
+                                   feature_manager=feature_manager)
     trader = trading_manager.get_trading_manager(
         'back_test', {'feature_manager': feature_manager})
 
@@ -230,9 +231,8 @@ def simulate(start_date, end_date, trade_algorithm, budget):
 def main(args):
     del args  # Unused
 
-    trade_algorithm = algorithm.DummyAlgorithm()
-    #trade_algorithm = multi_factor_market_timing.MultiFactorMarketTiming()
-    simulate(FLAGS.start_date, FLAGS.end_date, trade_algorithm, FLAGS.budget)
+    trade_algorithm = algorithm.Algorithm.algorithms[FLAGS.algorithm]
+    simulate(FLAGS.start_date, FLAGS.end_date, trade_algorithm(), FLAGS.budget)
 
 
 if __name__ == '__main__':

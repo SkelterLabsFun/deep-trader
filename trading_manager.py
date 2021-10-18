@@ -7,7 +7,7 @@ from typing import List, Optional
 
 from absl import logging
 
-import algorithm
+from algorithm import algorithm
 import feature_manager
 
 
@@ -26,7 +26,6 @@ class Transaction:
 
 
 class TradingManager(abc.ABC):
-
     def __init__(self):
         self.initialize()
 
@@ -62,9 +61,7 @@ class BackTestTradingManager(TradingManager):
         self._stock_data = None
         self._feature_manager = feature_manager
 
-    def set_user_and_stock_data(self,
-                                context: algorithm.Context,
-                                stock_data):
+    def set_user_and_stock_data(self, context: algorithm.Context, stock_data):
         # TODO(inyoup): Implement to fecth market data from SecuritiesManager
         #   after implemented.
         self._context = context
@@ -85,11 +82,12 @@ class BackTestTradingManager(TradingManager):
 
         # TODO(inyoup): In buying and selling, use target_price and bound_price
         #   to trade stocks.
-        return algorithm.Stock(code=trading.code,
-                               bought_price=close_price,
-                               amount=trading.amount,
-                               bought_at=self.get_market_time(),
-                              ) # always succeed to buy
+        return algorithm.Stock(
+            code=trading.code,
+            bought_price=close_price,
+            amount=trading.amount,
+            bought_at=self.get_market_time(),
+        )  # always succeed to buy
 
     def sell(self, trading: algorithm.Trading) -> List[Transaction]:
         self.log(f'Call sell API for {trading}')
