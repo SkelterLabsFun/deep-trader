@@ -13,6 +13,7 @@ $ pyenv virtualenv 3.7.9 deeptraders
 $ pyenv activate deeptraders
 $ pip install -r requirements.txt
 ```
+
 ## Datasets
 
 Gathered datasets are stored in the below paths:
@@ -27,8 +28,10 @@ Gathered datasets are stored in the below paths:
 ### Back test
 
 To perform back test, execute the following command:
+
 ```bash
-$ python back_tester.py```
+$ python back_tester.py
+```
 
 ### Trading
 
