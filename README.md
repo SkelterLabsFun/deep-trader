@@ -24,17 +24,28 @@ $ pip install -r requirements.txt
 
 Gathered datasets are stored in the below paths:
 
-* Company data: `/nas0/home/jaesup.kwak/deep_traders/financial_data.txt`
 * Trading data
     * Daily: `/nas0/home/jaesup.kwak/deep_traders/finance_data/2021-09-29/finance_data.tfrecord`
     * Minutes: `https://drive.google.com/file/d/1Y4SFQ9i-5M3NH5Y7RnWfFUPmKTtZEmmd/view?usp=sharing`
 
-To download new dataset,
-
-* Company data: ``
-* Trading data
+* Download new trading data
     * Daily: `python data/download_finance_data.py --outfile /your_path/finance_data.tfrecord`
-    * Minutes: (TODO)
+    * Minutes: (TODO, use `data/download_chart_data.py`)
+
+* Company data:
+    * Origin: `/nas0/home/jaesup.kwak/deep_traders/financial_data.txt`
+    * tfrecord: `/nas0/home/jaesup.kwak/deep_traders/financial_data.tfrecord`
+    * Example format:
+```
+code	corp_name	year	total_equity	sales	profit	net_income	bps	per	eps	debt_ratio	profit_ratio
+017960	한국카본	2020	3805	4117	757	574	8793	10.3	1305	25.7	18.4
+017960	한국카본	2019	3127	2734	253	177	7532	19.45	403	27.14	9.25
+017960	한국카본	2018	3037	2267	62	-30	7327	nan	-68	18.57	2.72
+017960	한국카본	2017	3103	2391	58	7	7478	316.65	17	18.08	2.44
+...
+```
+
+* Download new company data: (TODO, script is not exist)
 
 ## Usage
 
