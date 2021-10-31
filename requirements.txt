@@ -5,3 +5,4 @@ finance-datareader==0.9.31
 matplotlib==3.4.3
 pykrx
 grpcio==1.41.0
+tensorflow==2.6.0

@@ -9,6 +9,12 @@ Design doc: https://docs.google.com/document/d/1TDrU1CxfyJ7QBZY_WBpRHaeVn7L3LtNp
 To execute this repo, we temporalily use virtualenv.
 
 ```bash
+$ brew install pyenv
+$ brew install pyenv-virtualenv
+# Prepare required setting for pyenv
+```
+
+```bash
 $ pyenv virtualenv 3.7.9 deeptraders
 $ pyenv activate deeptraders
 $ pip install -r requirements.txt
@@ -22,6 +28,13 @@ Gathered datasets are stored in the below paths:
 * Trading data
     * Daily: `/nas0/home/jaesup.kwak/deep_traders/finance_data/2021-09-29/finance_data.tfrecord`
     * Minutes: `https://drive.google.com/file/d/1Y4SFQ9i-5M3NH5Y7RnWfFUPmKTtZEmmd/view?usp=sharing`
+
+To download new dataset,
+
+* Company data: ``
+* Trading data
+    * Daily: `python data/download_finance_data.py --outfile /your_path/finance_data.tfrecord`
+    * Minutes: (TODO)
 
 ## Usage
 

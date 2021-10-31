@@ -197,6 +197,8 @@ def _parse_datetime(date_str):
 def _get_ticks(start_date, end_date, feature_manager):
     print('Extract stock opened dates from KOSPI...')
     # Filter date by KOSPI to decide if stock market is opened at specific date.
+    # TODO: Need to replace it pre-downloaded data and need to check whether
+    # it is daily or n minutes candle chart.
     kospi_df = feature_manager.get_candle_data('KS11', start_date, end_date)
     return kospi_df.index.tolist()
 
